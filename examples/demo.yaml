@@ -1,0 +1,12 @@
+apiVersion: aptify/v1alpha1
+kind: Repository
+releases:
+  - name: bookworm
+    origin: Demo Organization
+    label: Demo
+    suite: bookworm
+    components:
+      - name: stable
+        packages:
+          - testdata/package/hello-world_1.0_amd64.deb
+          - testdata/package/hello-world_1.0_arm64.deb

@@ -1,0 +1,28 @@
+Format: 1.8
+Date: Sun, 14 Jul 2024 09:34:56 +0200
+Source: hello-world
+Binary: hello-world hello-world-dbgsym
+Architecture: amd64
+Version: 1.0
+Distribution: unstable
+Urgency: medium
+Maintainer: Damian Peckett <damian@pecke.tt>
+Changed-By: Damian Peckett <damian@pecke.tt>
+Description:
+ hello-world - A simple Hello World program
+Changes:
+ hello-world (1.0) unstable; urgency=medium
+ .
+   * Initial release.
+Checksums-Sha1:
+ cd53291bcb2f35cf8f300c580a407faa77c1ea60 2172 hello-world-dbgsym_1.0_amd64.deb
+ 79c4900e5809b818edfa33f437b9c4a4b51b12bb 4366 hello-world_1.0_amd64.buildinfo
+ d98839c999ade6f9d77ef6324b546c3f3f4547d1 7840 hello-world_1.0_amd64.deb
+Checksums-Sha256:
+ 67f933db8f851df32ab8d7bfff70d693c79946f162f99e5a19db50184048ca29 2172 hello-world-dbgsym_1.0_amd64.deb
+ ab9941a2697c17f9cd97e09acef5533eceace9849bb3d50941cd40d9fa31870b 4366 hello-world_1.0_amd64.buildinfo
+ 30afcecd4621a9241d26c9dad9f861befa7df0708aa029a7f33f090695afd111 7840 hello-world_1.0_amd64.deb
+Files:
+ faefe5211663843f5472337bbd2f76e3 2172 debug optional hello-world-dbgsym_1.0_amd64.deb
+ d138c56da9d534ca685a6a71c3287669 4366 utils optional hello-world_1.0_amd64.buildinfo
+ 05369b47f188ccb4ec293a016c60d475 7840 utils optional hello-world_1.0_amd64.deb

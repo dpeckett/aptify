@@ -2,6 +2,8 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
+/dist/
+/aptify
 *.exe
 *.exe~
 *.dll
@@ -20,3 +22,6 @@
 # Go workspace file
 go.work
 go.work.sum
+
+# Apt output directory
+/debian/

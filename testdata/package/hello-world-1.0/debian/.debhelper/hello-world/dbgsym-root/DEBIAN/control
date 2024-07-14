@@ -1,0 +1,12 @@
+Package: hello-world-dbgsym
+Source: hello-world
+Version: 1.0
+Auto-Built-Package: debug-symbols
+Architecture: arm64
+Maintainer: Damian Peckett <damian@pecke.tt>
+Installed-Size: 16
+Depends: hello-world (= 1.0)
+Section: debug
+Priority: optional
+Description: debug symbols for hello-world
+Build-Ids: d7a70ebb05fd7ea8085a6df5af73424617efbbd5

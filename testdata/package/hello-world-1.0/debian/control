@@ -1,0 +1,11 @@
+Source: hello-world
+Section: utils
+Priority: optional
+Maintainer: Damian Peckett <damian@pecke.tt>
+Standards-Version: 4.5.0
+
+Package: hello-world
+Architecture: any
+Depends: ${misc:Depends}
+Description: A simple Hello World program
+ This is a minimal Debian package that contains a Hello World binary.
