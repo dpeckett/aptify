@@ -34,28 +34,33 @@ This will create a directory called `my-awesome-repo` containing the repository.
 
 ### Serve The Repository
 
-You can serve the repository using any web server you like. However, for simplicity,
-aptify includes a simple embedded web server (with HTTPS and Let's Encrypt 
-support) that you can use to serve the repository.
+You can serve the repository using any web server you like. However for convenience,
+aptify includes a simple embedded web server that you can use to serve the 
+repository.
 
 ```shell
 aptify serve -d ./my-awesome-repo
 ```
 
-This will start a web server on port 8080 serving the repository. You can enable 
-HTTPS support by passing the `--tls` flag and providing a public domain name and
-your email for Let's Encrypt certificate issuance.
+You can connect to the server by visiting [http://localhost:8080](http://localhost:8080) 
+in your browser.
 
-You can then add the repository to your sources.list file:
+
+You can enable HTTPS support by passing the `--tls` flag and providing a public 
+domain and your email for Let's Encrypt certificate issuance.
+
+### Use The Repository
+
+You can then add the repository to your sources.list file.
 
 ```shell
 curl -fsL http://localhost:8080/signing_key.asc | sudo tee /etc/apt/keyrings/my-awesome-repo-keyring.asc > /dev/null
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/my-awesome-repo-keyring.asc] http://localhost:8080/ bookworm stable" | sudo tee /etc/apt/sources.list.d/my-awesome-repo.list > /dev/null
+sudo apt update
 ```
 
-You can then update your package list and install packages from the repository:
+You can then install packages from the repository:
 
 ```shell
-sudo apt update
 sudo apt install hello-world
 ```
