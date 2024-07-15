@@ -3,6 +3,8 @@ FROM golang:1.22-bookworm
 WORKDIR /workspace
 
 all:
+  ARG VERSION=dev
+  BUILD --platform=linux/amd64 --platform=linux/arm64 +docker
   COPY (+build/aptify --GOARCH=amd64) ./dist/aptify-linux-amd64
   COPY (+build/aptify --GOARCH=arm64) ./dist/aptify-linux-arm64
   COPY (+build/aptify --GOARCH=riscv64) ./dist/aptify-linux-riscv64
@@ -17,6 +19,17 @@ all:
   SAVE ARTIFACT ./dist/aptify-darwin-arm64 AS LOCAL dist/aptify-darwin-arm64
   SAVE ARTIFACT ./dist/aptify-windows-amd64.exe AS LOCAL dist/aptify-windows-amd64.exe
   SAVE ARTIFACT ./sha256sums.txt AS LOCAL dist/sha256sums.txt
+
+docker:
+  FROM gcr.io/distroless/static-debian12:nonroot
+  COPY LICENSE /usr/share/doc/aptify/copyright
+  ARG TARGETARCH
+  COPY (+build/aptify --GOOS=linux --GOARCH=${TARGETARCH}) /usr/bin/aptify
+  ENTRYPOINT ["/usr/bin/aptify"]
+  ARG VERSION=dev
+  EXPOSE 8080/tcp 8443/tcp
+  SAVE IMAGE --push ghcr.io/dpeckett/aptify:${VERSION}
+  SAVE IMAGE --push ghcr.io/dpeckett/aptify:latest
 
 build:
   ARG GOOS=linux

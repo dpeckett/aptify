@@ -1,9 +1,0 @@
-Package: hello-world
-Version: 1.0
-Architecture: arm64
-Maintainer: Damian Peckett <damian@pecke.tt>
-Installed-Size: 93
-Section: utils
-Priority: optional
-Description: A simple Hello World program
- This is a minimal Debian package that contains a Hello World binary.

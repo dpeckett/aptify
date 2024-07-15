@@ -1,0 +1,30 @@
+ dpkg-buildpackage -us -uc -ui -S
+dpkg-buildpackage: info: source package hello-world
+dpkg-buildpackage: info: source version 1.0
+dpkg-buildpackage: info: source distribution unstable
+dpkg-buildpackage: info: source changed by Damian Peckett <damian@pecke.tt>
+ dpkg-source --before-build .
+ fakeroot debian/rules clean
+dh clean
+   dh_auto_clean
+	make -j8 clean
+make[1]: Entering directory '/home/damian/workspace/dpeckett/aptify/testdata/package/hello-world-1.0'
+rm -f hello
+make[1]: Leaving directory '/home/damian/workspace/dpeckett/aptify/testdata/package/hello-world-1.0'
+   dh_clean
+ dpkg-source -b .
+dpkg-source: info: using source format '3.0 (native)'
+dpkg-source: info: building hello-world in hello-world_1.0.tar.xz
+dpkg-source: info: building hello-world in hello-world_1.0.dsc
+ dpkg-genbuildinfo --build=source -O../hello-world_1.0_source.buildinfo
+ dpkg-genchanges --build=source -O../hello-world_1.0_source.changes
+dpkg-genchanges: info: including full source code in upload
+ dpkg-source --after-build .
+dpkg-buildpackage: info: source-only upload: Debian-native package
+Now running lintian hello-world_1.0_source.changes ...
+E: hello-world source: missing-build-dependency-for-dh_-command dh_shlibdeps (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+E: hello-world source: package-uses-debhelper-but-lacks-build-depends [debian/rules]
+E: hello-world source: rules-require-build-prerequisite (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+W: hello-world source: no-newline-at-end [debian/rules]
+W: hello-world source: no-versioned-debhelper-prerequisite 10
+Finished running lintian.

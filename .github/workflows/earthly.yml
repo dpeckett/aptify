@@ -41,8 +41,8 @@ jobs:
     - name: Check Out Repo
       uses: actions/checkout@v3
 
-    - name: Build
-      run: earthly +all --VERSION=${{ github.ref_name }}
+    - name: Build and Push Image
+      run: earthly --push +all --VERSION=${{ github.ref_name }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
