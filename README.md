@@ -16,7 +16,7 @@ create one using the `init-keys` command:
 aptify init-keys
 ```
 
-The resulting keys will be written to your `$XDG_STATE_HOME/aptify` directory.
+The resulting keys will be written to your `$XDG_CONFIG_HOME/aptify` directory.
 
 ### Create Repository
 
