@@ -20,7 +20,7 @@ import (
 
 // ServeWithContext starts an HTTP server and listens for incoming requests. It
 // will shut down the server when the provided context is canceled.
-func ServeWithContext(ctx context.Context, srv *http.Server) error {
+func ServeWithContext(ctx context.Context, srv *http.Server, lis net.Listener) error {
 	srv.BaseContext = func(_ net.Listener) context.Context {
 		return ctx
 	}
@@ -36,8 +36,18 @@ func ServeWithContext(ctx context.Context, srv *http.Server) error {
 		}
 	}()
 
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return err
+	if srv.TLSConfig != nil {
+		slog.Info("Starting HTTPS server", slog.Any("addr", lis.Addr()))
+
+		if err := srv.ServeTLS(lis, "", ""); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+	} else {
+		slog.Info("Starting HTTP server", slog.Any("addr", lis.Addr()))
+
+		if err := srv.Serve(lis); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
 	}
 
 	return nil

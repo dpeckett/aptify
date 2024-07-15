@@ -243,7 +243,7 @@ func main() {
 					ctx := appcontext.Context()
 
 					var primaryAddress string
-					var tlsConfig *tls.Config
+					var autoTLSManager autocert.Manager
 
 					if c.Bool("tls") {
 						if c.String("domain") == "" {
@@ -257,22 +257,20 @@ func main() {
 						// Use the https port for the primary server address.
 						primaryAddress = net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("https-port")))
 
-						autoTLSManager := autocert.Manager{
+						autoTLSManager = autocert.Manager{
 							Prompt:     autocert.AcceptTOS,
 							Cache:      autocert.DirCache(filepath.Join(c.String("config-dir"), "autocert")),
 							HostPolicy: autocert.HostWhitelist(c.String("domain")),
 							Email:      c.String("email"),
 						}
 
-						tlsConfig = &tls.Config{
-							ServerName:     c.String("domain"),
-							GetCertificate: autoTLSManager.GetCertificate,
-							NextProtos:     []string{acme.ALPNProto},
+						lis, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port"))))
+						if err != nil {
+							return fmt.Errorf("failed to listen: %w", err)
 						}
 
 						// Serve the ACME challenge over HTTP and redirect all other requests to HTTPS.
 						redirectSrv := &http.Server{
-							Addr: net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port"))),
 							Handler: autoTLSManager.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 								http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
 							})),
@@ -280,7 +278,7 @@ func main() {
 						}
 
 						go func() {
-							if err := util.ServeWithContext(ctx, redirectSrv); err != nil {
+							if err := util.ServeWithContext(ctx, redirectSrv, lis); err != nil {
 								slog.Error("Failed to run HTTP/s redirect server", slog.Any("error", err))
 								os.Exit(1)
 							}
@@ -294,22 +292,22 @@ func main() {
 					mux := http.NewServeMux()
 					mux.Handle("/", http.FileServer(http.Dir(repoDir)))
 
+					lis, err := net.Listen("tcp", primaryAddress)
+					if err != nil {
+						return fmt.Errorf("failed to listen: %w", err)
+					}
+
 					srv := &http.Server{
-						Addr:        primaryAddress,
 						Handler:     mux,
 						BaseContext: func(_ net.Listener) context.Context { return ctx },
-						TLSConfig:   tlsConfig,
+						TLSConfig: &tls.Config{
+							ServerName:     c.String("domain"),
+							GetCertificate: autoTLSManager.GetCertificate,
+							NextProtos:     []string{acme.ALPNProto},
+						},
 					}
 
-					urlScheme := "http"
-					if c.Bool("enable-tls") {
-						urlScheme = "https"
-					}
-
-					slog.Info("Listening for requests, press Ctrl+C to stop",
-						slog.String("address", fmt.Sprintf("%s://%s", urlScheme, primaryAddress)))
-
-					return util.ServeWithContext(ctx, srv)
+					return util.ServeWithContext(ctx, srv, lis)
 				},
 			},
 		},
