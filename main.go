@@ -279,10 +279,12 @@ func main() {
 							BaseContext: func(_ net.Listener) context.Context { return ctx },
 						}
 
-						if err := util.ServeWithContext(ctx, redirectSrv); err != nil {
-							slog.Error("Failed to start HTTP redirect server", slog.Any("error", err))
-							os.Exit(1)
-						}
+						go func() {
+							if err := util.ServeWithContext(ctx, redirectSrv); err != nil {
+								slog.Error("Failed to run HTTP/s redirect server", slog.Any("error", err))
+								os.Exit(1)
+							}
+						}()
 					} else {
 						// Use the http port for the primary server address.
 						primaryAddress = net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port")))
