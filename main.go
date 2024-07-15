@@ -243,7 +243,7 @@ func main() {
 					ctx := appcontext.Context()
 
 					var primaryAddress string
-					var autoTLSManager autocert.Manager
+					var tlsConfig *tls.Config
 
 					if c.Bool("tls") {
 						if c.String("domain") == "" {
@@ -257,11 +257,17 @@ func main() {
 						// Use the https port for the primary server address.
 						primaryAddress = net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("https-port")))
 
-						autoTLSManager = autocert.Manager{
+						autoTLSManager := autocert.Manager{
 							Prompt:     autocert.AcceptTOS,
 							Cache:      autocert.DirCache(filepath.Join(c.String("config-dir"), "autocert")),
 							HostPolicy: autocert.HostWhitelist(c.String("domain")),
 							Email:      c.String("email"),
+						}
+
+						tlsConfig = &tls.Config{
+							ServerName:     c.String("domain"),
+							GetCertificate: autoTLSManager.GetCertificate,
+							NextProtos:     []string{acme.ALPNProto},
 						}
 
 						lis, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port"))))
@@ -271,9 +277,9 @@ func main() {
 
 						// Serve the ACME challenge over HTTP and redirect all other requests to HTTPS.
 						redirectSrv := &http.Server{
-							Handler: autoTLSManager.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+							Handler: util.LoggingMiddleware(autoTLSManager.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 								http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
-							})),
+							}))),
 							BaseContext: func(_ net.Listener) context.Context { return ctx },
 						}
 
@@ -298,13 +304,9 @@ func main() {
 					}
 
 					srv := &http.Server{
-						Handler:     mux,
+						Handler:     util.LoggingMiddleware(mux),
 						BaseContext: func(_ net.Listener) context.Context { return ctx },
-						TLSConfig: &tls.Config{
-							ServerName:     c.String("domain"),
-							GetCertificate: autoTLSManager.GetCertificate,
-							NextProtos:     []string{acme.ALPNProto},
-						},
+						TLSConfig:   tlsConfig,
 					}
 
 					return util.ServeWithContext(ctx, srv, lis)

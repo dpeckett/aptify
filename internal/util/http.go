@@ -52,3 +52,19 @@ func ServeWithContext(ctx context.Context, srv *http.Server, lis net.Listener) e
 
 	return nil
 }
+
+// LoggingMiddleware is an HTTP middleware that logs information about the
+// incoming request.
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		slog.Info("HTTP request",
+			slog.String("method", r.Method),
+			slog.String("url", r.URL.String()),
+			slog.String("remote_addr", r.RemoteAddr),
+			slog.String("user_agent", r.UserAgent()),
+			slog.String("duration", time.Since(start).String()),
+		)
+	})
+}
