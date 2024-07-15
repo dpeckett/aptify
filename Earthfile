@@ -25,6 +25,7 @@ docker:
   COPY LICENSE /usr/share/doc/aptify/copyright
   ARG TARGETARCH
   COPY (+build/aptify --GOOS=linux --GOARCH=${TARGETARCH}) /usr/bin/aptify
+  RUN mkdir -p /home/nonroot/.config/aptify
   ENTRYPOINT ["/usr/bin/aptify"]
   ARG VERSION=dev
   EXPOSE 8080/tcp 8443/tcp
