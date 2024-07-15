@@ -7,7 +7,7 @@ Kind of a lightweight/minimal alternative to [reprepro](https://salsa.debian.org
 
 ## Usage
 
-### Create GPG Key For Signing Releases
+### Initialize GPG Keys
 
 You'll need a GPG key to sign your repository. If you don't have one, you can
 create one using the `init-keys` command:
@@ -32,7 +32,7 @@ aptify build -c examples/demo.yaml -o ./my-awesome-repo
 
 This will create a directory called `my-awesome-repo` containing the repository.
 
-### Serve The Repository
+### Serve Repository
 
 You can serve the repository using any web server you like. However for convenience,
 aptify includes a simple embedded web server that you can use to serve the 
@@ -49,7 +49,7 @@ in your browser.
 You can enable HTTPS support by passing the `--tls` flag and providing a public 
 domain and your email for Let's Encrypt certificate issuance.
 
-### Use The Repository
+### Use Repository
 
 You can then add the repository to your sources.list file.
 
