@@ -21,10 +21,15 @@ all:
   SAVE ARTIFACT ./sha256sums.txt AS LOCAL dist/sha256sums.txt
 
 docker:
-  FROM gcr.io/distroless/static-debian12:nonroot
+  FROM ghcr.io/dpeckett/debco/debian:bookworm-ultraslim
+  RUN groupadd -g 65532 nonroot \
+    && useradd -u 65532 -g 65532 -s /sbin/nologin -m nonroot
   COPY LICENSE /usr/share/doc/aptify/copyright
   ARG TARGETARCH
   COPY (+build/aptify --GOOS=linux --GOARCH=${TARGETARCH}) /usr/bin/aptify
+  USER nonroot:nonroot
+  # Make sure a mount point exists for the configuration directory (with the 
+  # correct uid/gid).
   RUN mkdir -p /home/nonroot/.config/aptify
   ENTRYPOINT ["/usr/bin/aptify"]
   ARG VERSION=dev
