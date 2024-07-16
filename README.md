@@ -64,3 +64,24 @@ Packages can now be installed from the repository.
 sudo apt update
 sudo apt install hello-world
 ```
+
+### Docker
+
+You can also serve the repository from a Docker container.
+
+```shell
+# Create a volume to store letsencrypt certificates.
+docker volume create aptify-config
+
+# Serve the repository.
+docker run -d --rm --name=aptify \
+  -p80:8080/tcp -p443:8443/tcp \
+  -v aptify-config:/home/nonroot/.config/aptify \
+  -v $(pwd)/demo-repo:/home/nonroot/demo-repo \
+  ghcr.io/dpeckett/aptify:latest serve \
+  --listen="" --tls --domain=<YOUR_DOMAIN> --email=<YOUR_EMAIL> \
+  -d /home/nonroot/demo-repo
+```
+
+Replace `<YOUR_DOMAIN>` and `<YOUR_EMAIL>` with the public domain where the 
+registry will be hosted and your email address respectively.
