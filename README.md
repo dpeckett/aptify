@@ -25,10 +25,10 @@ repository configuration is defined in the
 [v1alpha1/types.go](./internal/config/v1alpha1/types.go) file.
 
 ```shell
-aptify build -c examples/demo.yaml -o ./my-awesome-repo
+aptify build -c examples/demo.yaml -o ./demo-repo
 ```
 
-This will create a directory called `my-awesome-repo` containing the repository.
+This will create a directory called `demo-repo` containing the repository.
 
 ### Serve Repository
 
@@ -39,7 +39,7 @@ the repository.
 To start a server listening on `http://localhost:8080`:
 
 ```shell
-aptify serve -d ./my-awesome-repo
+aptify serve -d ./demo-repo
 ```
 
 You can enable HTTPS support by passing the `--tls` flag and providing a 
@@ -54,8 +54,8 @@ can do this by downloading the signing key and adding the repository to your
 In a production setting the signing key should be downloaded over HTTPS.
 
 ```shell
-curl -fsL http://localhost:8080/signing_key.asc | sudo tee /etc/apt/keyrings/my-awesome-repo-keyring.asc > /dev/null
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/my-awesome-repo-keyring.asc] http://localhost:8080/ $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/my-awesome-repo.list > /dev/null
+curl -fsL http://localhost:8080/signing_key.asc | sudo tee /etc/apt/keyrings/demo-repo-keyring.asc > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/demo-repo-keyring.asc] http://localhost:8080/ $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/demo-repo.list > /dev/null
 ```
 
 Packages can now be installed from the repository.

@@ -46,6 +46,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -240,9 +241,10 @@ func main() {
 
 					slog.Info("Serving repository", slog.String("dir", repoDir))
 
-					ctx := appcontext.Context()
+					mux := http.NewServeMux()
+					mux.Handle("/", http.FileServer(http.Dir(repoDir)))
 
-					var primaryAddress string
+					var httpHandler http.Handler = mux
 					var tlsConfig *tls.Config
 
 					if c.Bool("tls") {
@@ -253,9 +255,6 @@ func main() {
 						if c.String("email") == "" {
 							return errors.New("`email` is required when enabling TLS")
 						}
-
-						// Use the https port for the primary server address.
-						primaryAddress = net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("https-port")))
 
 						autoTLSManager := autocert.Manager{
 							Prompt:     autocert.AcceptTOS,
@@ -270,46 +269,52 @@ func main() {
 							NextProtos:     []string{acme.ALPNProto},
 						}
 
-						lis, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port"))))
-						if err != nil {
-							return fmt.Errorf("failed to listen: %w", err)
-						}
-
-						// Serve the ACME challenge over HTTP and redirect all other requests to HTTPS.
-						redirectSrv := &http.Server{
-							Handler: util.LoggingMiddleware(autoTLSManager.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						httpHandler = autoTLSManager.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+							// If the request is for a signing key (eg. the asc file extension), redirect to HTTPS.
+							if strings.HasSuffix(r.URL.Path, ".asc") {
 								http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
-							}))),
-							BaseContext: func(_ net.Listener) context.Context { return ctx },
+								return
+							}
+
+							// Otherwise, serve the request over HTTP.
+							mux.ServeHTTP(w, r)
+						}))
+					}
+
+					g, ctx := errgroup.WithContext(appcontext.Context())
+
+					httpListener, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port"))))
+					if err != nil {
+						return fmt.Errorf("failed to listen on http port: %w", err)
+					}
+
+					httpSrv := &http.Server{
+						Handler:     util.LoggingMiddleware(httpHandler),
+						BaseContext: func(_ net.Listener) context.Context { return ctx },
+					}
+
+					g.Go(func() error {
+						return util.ServeWithContext(ctx, httpSrv, httpListener)
+					})
+
+					if c.Bool("tls") {
+						httpsListener, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("https-port"))))
+						if err != nil {
+							return fmt.Errorf("failed to listen on https port: %w", err)
 						}
 
-						go func() {
-							if err := util.ServeWithContext(ctx, redirectSrv, lis); err != nil {
-								slog.Error("Failed to run HTTP/s redirect server", slog.Any("error", err))
-								os.Exit(1)
-							}
-						}()
-					} else {
-						// Use the http port for the primary server address.
-						primaryAddress = net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port")))
+						httpsSrv := &http.Server{
+							Handler:     util.LoggingMiddleware(mux),
+							BaseContext: func(_ net.Listener) context.Context { return ctx },
+							TLSConfig:   tlsConfig,
+						}
+
+						g.Go(func() error {
+							return util.ServeWithContext(ctx, httpsSrv, httpsListener)
+						})
 					}
 
-					// Serve the output directory over HTTP.
-					mux := http.NewServeMux()
-					mux.Handle("/", http.FileServer(http.Dir(repoDir)))
-
-					lis, err := net.Listen("tcp", primaryAddress)
-					if err != nil {
-						return fmt.Errorf("failed to listen: %w", err)
-					}
-
-					srv := &http.Server{
-						Handler:     util.LoggingMiddleware(mux),
-						BaseContext: func(_ net.Listener) context.Context { return ctx },
-						TLSConfig:   tlsConfig,
-					}
-
-					return util.ServeWithContext(ctx, srv, lis)
+					return g.Wait()
 				},
 			},
 		},
