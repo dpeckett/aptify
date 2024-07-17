@@ -16,23 +16,6 @@ all:
   SAVE ARTIFACT ./dist/* AS LOCAL dist/
   SAVE ARTIFACT ./sha256sums.txt AS LOCAL dist/sha256sums.txt
 
-docker:
-  FROM ghcr.io/dpeckett/debco/debian:bookworm-ultraslim
-  RUN groupadd -g 65532 nonroot \
-    && useradd -u 65532 -g 65532 -s /sbin/nologin -m nonroot
-  COPY LICENSE /usr/share/doc/aptify/copyright
-  ARG TARGETARCH
-  COPY (+build/aptify --GOOS=linux --GOARCH=${TARGETARCH}) /usr/bin/aptify
-  USER nonroot:nonroot
-  # Make sure a mount point exists for the configuration directory (with the 
-  # correct uid/gid).
-  RUN mkdir -p /home/nonroot/.config/aptify
-  ENTRYPOINT ["/usr/bin/aptify"]
-  ARG VERSION=dev
-  EXPOSE 8080/tcp 8443/tcp
-  SAVE IMAGE --push ghcr.io/dpeckett/aptify:${VERSION}
-  SAVE IMAGE --push ghcr.io/dpeckett/aptify:latest
-
 build:
   ARG GOOS=linux
   ARG GOARCH=amd64
@@ -63,12 +46,28 @@ test:
   # A quick integration test to ensure that we are producing valid repositories.
   RUN go build .
   RUN ./aptify init-keys \
-    && ./aptify build -c examples/demo.yaml -o /tmp/aptify \
-    && cp /tmp/aptify/signing_key.asc /etc/apt/keyrings/aptify-keyring.asc \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/aptify-keyring.asc] file:/tmp/aptify bookworm stable" > /etc/apt/sources.list.d/demo.list \
+    && ./aptify build -c examples/demo.yaml -d /tmp/aptify \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/tmp/aptify/signing_key.asc] file:/tmp/aptify bookworm stable" > /etc/apt/sources.list.d/demo.list \
     && apt update \
     && apt install -y hello-world \
     && /usr/bin/hello
+
+docker:
+  FROM ghcr.io/dpeckett/debco/debian:bookworm-ultraslim
+  RUN groupadd -g 65532 nonroot \
+    && useradd -u 65532 -g 65532 -s /sbin/nologin -m nonroot
+  COPY LICENSE /usr/share/doc/aptify/copyright
+  ARG TARGETARCH
+  COPY (+build/aptify --GOOS=linux --GOARCH=${TARGETARCH}) /usr/bin/aptify
+  USER nonroot:nonroot
+  # Make sure a mount point exists for the configuration directory (with the 
+  # correct uid/gid).
+  RUN mkdir -p /home/nonroot/.config/aptify
+  ENTRYPOINT ["/usr/bin/aptify"]
+  ARG VERSION=dev
+  EXPOSE 8080/tcp 8443/tcp
+  SAVE IMAGE --push ghcr.io/dpeckett/aptify:${VERSION}
+  SAVE IMAGE --push ghcr.io/dpeckett/aptify:latest
 
 package:
   FROM debian:bookworm
