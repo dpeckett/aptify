@@ -3,6 +3,38 @@
 Probably the quickest, and easiest, way to create a Debian apt repository from
 a list of deb files.
 
+## Installation
+
+### From APT
+
+Add my apt repository to your system:
+
+```shell
+curl -fsL https://apt.pecke.tt/signing_key.asc | sudo tee /etc/apt/keyrings/apt-pecke-tt-keyring.asc > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/apt-pecke-tt-keyring.asc] http://apt.pecke.tt $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/apt-pecke-tt.list > /dev/null
+```
+
+Then install aptify:
+
+```shell
+sudo apt update
+sudo apt install aptify
+```
+
+### GitHub Releases
+
+Download statically linked binaries from the GitHub releases page: 
+
+[Latest Release](https://github.com/dpeckett/aptify/releases/latest)
+
+### Docker
+
+Pull the latest Docker image from GitHub Container Registry:
+
+```shell
+docker pull ghcr.io/dpeckett/aptify:latest
+```
+
 ## Usage
 
 ### Initialize Keys
@@ -14,7 +46,7 @@ create one using the `init-keys` command:
 aptify init-keys
 ```
 
-The resulting keys will be written to your `$XDG_CONFIG_HOME/aptify` directory.
+The resulting key will be written to your `$XDG_CONFIG_HOME/aptify/` directory. You should back this up somewhere safe.
 
 ### Create Repository
 
