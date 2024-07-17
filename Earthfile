@@ -11,7 +11,9 @@ all:
   COPY (+build/aptify --GOOS=darwin --GOARCH=amd64) ./dist/aptify-darwin-amd64
   COPY (+build/aptify --GOOS=darwin --GOARCH=arm64) ./dist/aptify-darwin-arm64
   COPY (+build/aptify --GOOS=windows --GOARCH=amd64) ./dist/aptify-windows-amd64.exe
-  COPY +package/*.deb ./dist/
+  COPY (+package/*.deb --GOARCH=amd64) ./dist/
+  COPY (+package/*.deb --GOARCH=arm64) ./dist/
+  COPY (+package/*.deb --GOARCH=riscv64) ./dist/
   RUN cd dist && find . -type f | sort | xargs sha256sum >> ../sha256sums.txt
   SAVE ARTIFACT ./dist/* AS LOCAL dist/
   SAVE ARTIFACT ./sha256sums.txt AS LOCAL dist/sha256sums.txt
@@ -105,7 +107,6 @@ package:
     && dch --create --package aptify --newversion "${VERSION}-1" \
       --distribution "UNRELEASED" --force-distribution  --controlmaint "Last Commit: $(git log -1 --pretty=format:'(%ai) %H %cn <%ce>')" \
     && tar -czf ../aptify_${VERSION}.orig.tar.gz .
-  RUN dpkg-buildpackage -us -uc --host-arch=amd64
-  RUN dpkg-buildpackage -d -us -uc --host-arch=arm64
-  RUN dpkg-buildpackage -d -us -uc --host-arch=riscv64
+  ARG GOARCH
+  RUN dpkg-buildpackage -d -us -uc --host-arch=${GOARCH}
   SAVE ARTIFACT /workspace/*.deb AS LOCAL dist/
