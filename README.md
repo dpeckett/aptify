@@ -25,7 +25,7 @@ repository configuration is defined in the
 [v1alpha1/types.go](./internal/config/v1alpha1/types.go) file.
 
 ```shell
-aptify build -c examples/demo.yaml -o ./demo-repo
+aptify build -c examples/demo.yaml -d ./demo-repo
 ```
 
 This will create a directory called `demo-repo` containing the repository.
@@ -67,10 +67,10 @@ sudo apt install hello-world
 
 ### Docker
 
-You can also serve the repository from a Docker container.
+You can also serve the repository using a Docker container.
 
 ```shell
-# Create a volume to store letsencrypt certificates.
+# Create a config volume to store letsencrypt certificates.
 docker volume create aptify-config
 
 # Serve the repository.

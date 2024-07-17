@@ -13,12 +13,7 @@ all:
   COPY (+build/aptify --GOOS=windows --GOARCH=amd64) ./dist/aptify-windows-amd64.exe
   COPY +package/*.deb ./dist/
   RUN cd dist && find . -type f | sort | xargs sha256sum >> ../sha256sums.txt
-  SAVE ARTIFACT ./dist/aptify-linux-amd64 AS LOCAL dist/aptify-linux-amd64
-  SAVE ARTIFACT ./dist/aptify-linux-arm64 AS LOCAL dist/aptify-linux-arm64
-  SAVE ARTIFACT ./dist/aptify-linux-riscv64 AS LOCAL dist/aptify-linux-riscv64
-  SAVE ARTIFACT ./dist/aptify-darwin-amd64 AS LOCAL dist/aptify-darwin-amd64
-  SAVE ARTIFACT ./dist/aptify-darwin-arm64 AS LOCAL dist/aptify-darwin-arm64
-  SAVE ARTIFACT ./dist/aptify-windows-amd64.exe AS LOCAL dist/aptify-windows-amd64.exe
+  SAVE ARTIFACT ./dist/* AS LOCAL dist/
   SAVE ARTIFACT ./sha256sums.txt AS LOCAL dist/sha256sums.txt
 
 docker:

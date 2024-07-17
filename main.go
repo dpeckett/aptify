@@ -160,20 +160,22 @@ func main() {
 						Required: true,
 					},
 					&cli.StringFlag{
-						Name:    "output",
-						Aliases: []string{"o", "d"},
-						Usage:   "Output directory",
+						Name:    "repository-dir",
+						Aliases: []string{"d"},
+						Usage:   "Directory to store the repository",
 						Value:   "repository",
 					},
 				}, persistentFlags...),
 				Before: util.BeforeAll(initLogger, initConfDir),
 				Action: func(c *cli.Context) error {
-					slog.Info("Building repository", slog.String("dir", c.String("output")))
+					repoDir := c.String("repository-dir")
+
+					slog.Info("Building repository", slog.String("dir", repoDir))
 
 					privateKeyPath := filepath.Join(c.String("config-dir"), "aptify_private.asc")
 
 					return buildRepository(
-						c.String("output"),
+						repoDir,
 						c.String("config"),
 						privateKeyPath,
 					)
@@ -232,11 +234,11 @@ func main() {
 
 					if c.Bool("tls") {
 						if c.String("domain") == "" {
-							return errors.New("`domain` is required when enabling TLS")
+							return errors.New("`domain` is required when using TLS")
 						}
 
 						if c.String("email") == "" {
-							return errors.New("`email` is required when enabling TLS")
+							return errors.New("`email` is required when using TLS")
 						}
 
 						autoTLSManager := autocert.Manager{
