@@ -27,11 +27,11 @@ package appcontext
 
 import (
 	"context"
-	"fmt"
-	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
+
+	slog "github.com/dpeckett/slog-shim"
 )
 
 var appContextCache context.Context
@@ -47,15 +47,14 @@ func Context() context.Context {
 		const exitLimit = 3
 		retries := 0
 
-		ctx, cancel := context.WithCancelCause(context.Background())
+		ctx, cancel := context.WithCancel(context.Background())
 		appContextCache = ctx
 
 		go func() {
 			for {
 				<-signals
+				cancel()
 				retries++
-				err := fmt.Errorf("got %d SIGTERM/SIGINTs, forcing shutdown", retries)
-				cancel(err)
 				if retries >= exitLimit {
 					slog.Error("Failed to shutdown gracefully, forcing exit", slog.Int("retries", retries))
 					os.Exit(1)

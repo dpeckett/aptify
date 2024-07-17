@@ -11,6 +11,7 @@ all:
   COPY (+build/aptify --GOOS=darwin --GOARCH=amd64) ./dist/aptify-darwin-amd64
   COPY (+build/aptify --GOOS=darwin --GOARCH=arm64) ./dist/aptify-darwin-arm64
   COPY (+build/aptify --GOOS=windows --GOARCH=amd64) ./dist/aptify-windows-amd64.exe
+  COPY +package/*.deb ./dist/
   RUN cd dist && find . -type f | sort | xargs sha256sum >> ../sha256sums.txt
   SAVE ARTIFACT ./dist/aptify-linux-amd64 AS LOCAL dist/aptify-linux-amd64
   SAVE ARTIFACT ./dist/aptify-linux-arm64 AS LOCAL dist/aptify-linux-arm64
@@ -73,3 +74,44 @@ test:
     && apt update \
     && apt install -y hello-world \
     && /usr/bin/hello
+
+package:
+  FROM debian:bookworm
+  # General build dependencies.
+  RUN apt update \
+    && apt install -y git curl devscripts dpkg-dev debhelper-compat
+  # Go tooling.
+  RUN apt install -y git dh-sequence-golang golang-any golang
+  # Cross-compilation tooling.
+  RUN apt install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
+  # Libraries dependencies.
+  RUN curl -fsL -o /etc/apt/keyrings/apt-pecke-tt-keyring.asc https://apt.pecke.tt/signing_key.asc \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/apt-pecke-tt-keyring.asc] http://apt.pecke.tt $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/apt-pecke-tt.list \
+    && apt update
+  RUN apt install -y \
+    golang-github-adrg-xdg-dev \
+    golang-github-dpeckett-archivefs-dev \
+    golang-github-dpeckett-compressmagic-dev \
+    golang-github-dpeckett-deb822-dev \
+    golang-github-dpeckett-slog-shim-dev \
+    golang-github-otiai10-copy-dev \
+    golang-github-protonmail-go-crypto-dev \
+    golang-github-urfave-cli-v2-dev \
+    golang-golang-x-crypto-dev \
+    golang-golang-x-sync-dev \
+    golang-golang-x-sys-dev \
+    golang-gopkg-yaml.v3-dev
+  RUN mkdir -p /workspace/aptify
+  WORKDIR /workspace/aptify
+  COPY . .
+  ENV EMAIL=damian@pecke.tt
+  RUN export DEBEMAIL="damian@pecke.tt" \
+    && export DEBFULLNAME="Damian Peckett" \
+    && export VERSION=$(git describe --tags --abbrev=0 | tr -d 'v') \
+    && dch --create --package aptify --newversion "${VERSION}-1" \
+      --distribution "UNRELEASED" --force-distribution  --controlmaint "Last Commit: $(git log -1 --pretty=format:'(%ai) %H %cn <%ce>')" \
+    && tar -czf ../aptify_${VERSION}.orig.tar.gz .
+  RUN dpkg-buildpackage -us -uc --host-arch=amd64
+  RUN dpkg-buildpackage -d -us -uc --host-arch=arm64
+  RUN dpkg-buildpackage -d -us -uc --host-arch=riscv64
+  SAVE ARTIFACT /workspace/*.deb AS LOCAL dist/

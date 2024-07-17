@@ -14,7 +14,7 @@ sudo apt install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 To build the source package, run the following command:
 
 ```bash
-debuild -S -us -uc
+dpkg-buildpackage -S -us -uc
 ```
 
 ## Building Binary Packages

@@ -8,6 +8,7 @@ require (
 	github.com/dpeckett/archivefs v0.1.0
 	github.com/dpeckett/compressmagic v0.1.0
 	github.com/dpeckett/deb822 v0.4.0
+	github.com/dpeckett/slog-shim v0.1.0
 	github.com/otiai10/copy v1.14.0
 	github.com/urfave/cli/v2 v2.27.2
 	golang.org/x/crypto v0.25.0
@@ -25,6 +26,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
+	golang.org/x/exp v0.0.0-20240716175740-e3f259677ff7 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 )

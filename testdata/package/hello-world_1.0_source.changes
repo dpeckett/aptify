@@ -14,12 +14,12 @@ Changes:
 Checksums-Sha1:
  c9f3a7a6cb241c18e2c4bcab9507a4ae52d8ca1c 484 hello-world_1.0.dsc
  29d72c9be7a8de3190cdcfaaf94029c224b7967e 6076 hello-world_1.0.tar.xz
- e8e8caedfbccdc01e841d879047d37cbb61c74ef 4051 hello-world_1.0_source.buildinfo
+ ac6bfeaa0f301f5b502df83484eab111da25bf95 4051 hello-world_1.0_source.buildinfo
 Checksums-Sha256:
  338a04ac68dd985452acd3ea8baab643144d7371c14a5e8ca23f21130a04761c 484 hello-world_1.0.dsc
  6840a55323116cdf91cb4da8e67927ed21210b704e4699289166ffc4499ba0ab 6076 hello-world_1.0.tar.xz
- facb940c45396d9f1207bd90d67a276cfafa77620d8ff38e4fdebce90db7b465 4051 hello-world_1.0_source.buildinfo
+ 7178f512f144dc35c6f5dc25e010885f06f8a8fd5d01c93d7a7ade9627dfc026 4051 hello-world_1.0_source.buildinfo
 Files:
  422bcfc37ddeda6b218271f11fa1504b 484 utils optional hello-world_1.0.dsc
  5407aaf34478642b9c1fe46637ff9c52 6076 utils optional hello-world_1.0.tar.xz
- 365ba42803af07774f464be127c452ca 4051 utils optional hello-world_1.0_source.buildinfo
+ 82cf6fa32ead01d42aacd8d37c5ff95c 4051 utils optional hello-world_1.0_source.buildinfo

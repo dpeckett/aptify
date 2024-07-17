@@ -24,4 +24,4 @@ go.work
 go.work.sum
 
 # Apt output directory
-/debian/
+/repository/

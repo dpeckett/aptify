@@ -16,6 +16,8 @@ github.com/dpeckett/compressmagic v0.1.0 h1:7q2VRaxWwNzuEGoTniBBRPirJkQGZbfw2nYj
 github.com/dpeckett/compressmagic v0.1.0/go.mod h1:VyW3BFqIIY9FzbfOvjFndC9ssl8nyCiazQn9fnMumoI=
 github.com/dpeckett/deb822 v0.4.0 h1:p4a6xxWT7pbfwWqqFNImJGboHeSJuHXQFz8tn2pzDnM=
 github.com/dpeckett/deb822 v0.4.0/go.mod h1:q6TzYtiux86OmWw09NVsEskuYpQ6Kr2U2HDMr1LUaNw=
+github.com/dpeckett/slog-shim v0.1.0 h1:wZU/0bdazUP0Ic8FJIMWft5ol/Y5nCKrRl7pe41ljr4=
+github.com/dpeckett/slog-shim v0.1.0/go.mod h1:OuteWoOkIYCt7CCQI7+of+Yi6Ha/amM/Z7Sb1DuXAEc=
 github.com/google/btree v1.1.2 h1:xf4v41cLI2Z6FxbKm+8Bu+m8ifhj15JuZ9sa0jZCMUU=
 github.com/google/btree v1.1.2/go.mod h1:qOPhT0dTNdNzV6Z/lhRX0YXUafgPLFUh+gZMl761Gm4=
 github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r5xaG0Es51mhhB9BQB2qeMA=
@@ -45,6 +47,8 @@ golang.org/x/crypto v0.3.1-0.20221117191849-2c476679df9a/go.mod h1:hebNnKkNXi2Uz
 golang.org/x/crypto v0.7.0/go.mod h1:pYwdfH91IfpZVANVyUOhSIPZaFoJGxTFbZhFTx+dXZU=
 golang.org/x/crypto v0.25.0 h1:ypSNr+bnYL2YhwoMt2zPxHFmbAN1KZs/njMG3hxUp30=
 golang.org/x/crypto v0.25.0/go.mod h1:T+wALwcMOSE0kXgUAnPAHqTLW+XHgcELELW8VaDgm/M=
+golang.org/x/exp v0.0.0-20240716175740-e3f259677ff7 h1:wDLEX9a7YQoKdKNQt88rtydkqDxeGaBUTnIYc3iG/mA=
+golang.org/x/exp v0.0.0-20240716175740-e3f259677ff7/go.mod h1:M4RDyNAINzryxdtnbRXRL/OHtkFuWGRjvuhBJpk2IlY=
 golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4/go.mod h1:jJ57K6gSWd91VN4djpZkiMVwK6gcyfeH4XE8wZrZaV4=
 golang.org/x/mod v0.8.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=

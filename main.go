@@ -15,7 +15,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -24,6 +23,8 @@ import (
 	"strconv"
 	"strings"
 	stdtime "time"
+
+	slog "github.com/dpeckett/slog-shim"
 
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/ProtonMail/go-crypto/openpgp/armor"
@@ -138,29 +139,11 @@ func main() {
 						return fmt.Errorf("failed to close private key writer: %w", err)
 					}
 
-					// Serialize the public key.
-					var publicKey bytes.Buffer
-					publicKeyWriter, err := armor.Encode(&publicKey, openpgp.PublicKeyType, nil)
-					if err != nil {
-						return fmt.Errorf("failed to encode public key: %w", err)
-					}
-					if err := entity.Serialize(publicKeyWriter); err != nil {
-						return fmt.Errorf("failed to serialize public key: %w", err)
-					}
-					if err := publicKeyWriter.Close(); err != nil {
-						return fmt.Errorf("failed to close public key writer: %w", err)
-					}
-
 					confDir := c.String("config-dir")
 
 					// Write private key to file.
 					if err := os.WriteFile(filepath.Join(confDir, "aptify_private.asc"), privateKey.Bytes(), 0o600); err != nil {
 						return fmt.Errorf("failed to write private key: %w", err)
-					}
-
-					// Write public key to file.
-					if err := os.WriteFile(filepath.Join(confDir, "aptify_public.asc"), publicKey.Bytes(), 0o644); err != nil {
-						return fmt.Errorf("failed to write public key: %w", err)
 					}
 
 					return nil
@@ -178,9 +161,9 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:    "output",
-						Aliases: []string{"o"},
+						Aliases: []string{"o", "d"},
 						Usage:   "Output directory",
-						Value:   "debian",
+						Value:   "repository",
 					},
 				}, persistentFlags...),
 				Before: util.BeforeAll(initLogger, initConfDir),
