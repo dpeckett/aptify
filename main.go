@@ -183,7 +183,7 @@ func main() {
 			},
 			{
 				Name:  "serve",
-				Usage: "Serve a Debian repository over HTTP",
+				Usage: "Serve a Debian repository over HTTP/s",
 				Flags: append([]cli.Flag{
 					&cli.StringFlag{
 						Name:     "repository-dir",

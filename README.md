@@ -1,6 +1,6 @@
 # aptify
 
-Probably the quickest, and easiest, way to create a Debian apt repository from
+Probably the quickest, and easiest, way to create a Debian APT repository from
 a list of deb files.
 
 ## Installation
