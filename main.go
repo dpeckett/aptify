@@ -15,6 +15,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -23,8 +24,6 @@ import (
 	"strconv"
 	"strings"
 	stdtime "time"
-
-	slog "github.com/dpeckett/slog-shim"
 
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/ProtonMail/go-crypto/openpgp/armor"

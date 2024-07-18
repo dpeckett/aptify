@@ -12,11 +12,10 @@ package util
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
-
-	slog "github.com/dpeckett/slog-shim"
 )
 
 // ServeWithContext starts an HTTP server and listens for incoming requests. It

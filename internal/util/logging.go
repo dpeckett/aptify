@@ -10,9 +10,8 @@
 package util
 
 import (
+	"log/slog"
 	"strings"
-
-	slog "github.com/dpeckett/slog-shim"
 )
 
 // LevelFlag is a urfave/cli compatible flag for setting the log verbosity level.

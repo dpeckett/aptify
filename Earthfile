@@ -30,6 +30,7 @@ build:
 
 tidy:
   LOCALLY
+  ENV GOTOOLCHAIN=go1.22.1
   RUN go mod tidy
   RUN go fmt ./...
 
@@ -73,11 +74,12 @@ docker:
 
 package:
   FROM debian:bookworm
-  # General build dependencies.
-  RUN apt update \
-    && apt install -y git curl devscripts dpkg-dev debhelper-compat
-  # Go tooling.
-  RUN apt install -y git dh-sequence-golang golang-any golang
+  # Use bookworm-backports for newer golang versions
+  RUN echo "deb http://deb.debian.org/debian bookworm-backports main" > /etc/apt/sources.list.d/backports.list
+  RUN apt update
+  # Tooling
+  RUN apt install -y git curl devscripts dpkg-dev debhelper-compat dh-sequence-golang \
+    golang-any=2:1.22~3~bpo12+1 golang-go=2:1.22~3~bpo12+1 golang-src=2:1.22~3~bpo12+1
   # Cross-compilation tooling.
   RUN apt install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
   # Libraries dependencies.
@@ -89,13 +91,13 @@ package:
     golang-github-dpeckett-archivefs-dev \
     golang-github-dpeckett-compressmagic-dev \
     golang-github-dpeckett-deb822-dev \
-    golang-github-dpeckett-slog-shim-dev \
     golang-github-otiai10-copy-dev \
+    golang-github-pierrec-lz4-dev=4.1.18-1~bpo12+1 \
     golang-github-protonmail-go-crypto-dev \
     golang-github-urfave-cli-v2-dev \
     golang-golang-x-crypto-dev \
     golang-golang-x-sync-dev \
-    golang-golang-x-sys-dev \
+    golang-golang-x-sys-dev=0.13.0-1~bpo12+1 \
     golang-gopkg-yaml.v3-dev
   RUN mkdir -p /workspace/aptify
   WORKDIR /workspace/aptify

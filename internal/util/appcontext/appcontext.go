@@ -27,11 +27,10 @@ package appcontext
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
-
-	slog "github.com/dpeckett/slog-shim"
 )
 
 var appContextCache context.Context
