@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/ProtonMail/go-crypto v1.0.0
 	github.com/adrg/xdg v0.5.0
-	github.com/dpeckett/archivefs v0.1.0
+	github.com/dpeckett/archivefs v0.3.1
 	github.com/dpeckett/compressmagic v0.1.0
 	github.com/dpeckett/deb822 v0.4.0
 	github.com/dpeckett/slog-shim v0.1.0
