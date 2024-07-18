@@ -341,48 +341,55 @@ func buildRepository(repoDir, confPath, privateKeyPath string) error {
 		for _, componentConf := range releaseConf.Components {
 			releaseComponent := fmt.Sprintf("%s/%s", releaseConf.Name, componentConf.Name)
 
-			for _, pkgPath := range componentConf.Packages {
-				pkg, err := deb.GetMetadata(pkgPath)
+			for _, pattern := range componentConf.Packages {
+				matches, err := filepath.Glob(pattern)
 				if err != nil {
-					return fmt.Errorf("failed to get package metadata: %w", err)
+					return fmt.Errorf("failed to find deb files for %s: %w", pattern, err)
 				}
 
-				pkg.SHA256, err = sha256sum.File(pkgPath)
-				if err != nil {
-					return fmt.Errorf("failed to hash package: %w", err)
-				}
-
-				if _, ok := archsForReleaseComponent[releaseComponent]; !ok {
-					archsForReleaseComponent[releaseComponent] = make(map[string]bool)
-				}
-				archsForReleaseComponent[releaseComponent][pkg.Architecture.String()] = true
-
-				// Only copy each deb file once.
-				// Use the component name from the first release that includes the package.
-				if existingPoolPath, ok := pkgPoolPaths[pkgPath]; !ok {
-					pkg.Filename = poolPathForPackage(componentConf.Name, pkg)
-
-					if err := os.MkdirAll(filepath.Dir(filepath.Join(repoDir, pkg.Filename)), 0o755); err != nil {
-						return fmt.Errorf("failed to create pool subdirectory: %w", err)
+				for _, pkgPath := range matches {
+					pkg, err := deb.GetMetadata(pkgPath)
+					if err != nil {
+						return fmt.Errorf("failed to get package metadata: %w", err)
 					}
 
-					if err := cp.Copy(pkgPath, filepath.Join(repoDir, pkg.Filename)); err != nil {
-						return fmt.Errorf("failed to copy package: %w", err)
+					pkg.SHA256, err = sha256sum.File(pkgPath)
+					if err != nil {
+						return fmt.Errorf("failed to hash package: %w", err)
 					}
 
-					pkgPoolPaths[pkgPath] = pkg.Filename
-				} else {
-					pkg.Filename = existingPoolPath
-				}
+					if _, ok := archsForReleaseComponent[releaseComponent]; !ok {
+						archsForReleaseComponent[releaseComponent] = make(map[string]bool)
+					}
+					archsForReleaseComponent[releaseComponent][pkg.Architecture.String()] = true
 
-				// Get the size of the package file.
-				fi, err := os.Stat(filepath.Join(repoDir, pkg.Filename))
-				if err != nil {
-					return fmt.Errorf("failed to get package size: %w", err)
-				}
-				pkg.Size = int(fi.Size())
+					// Only copy each deb file once.
+					// Use the component name from the first release that includes the package.
+					if existingPoolPath, ok := pkgPoolPaths[pkgPath]; !ok {
+						pkg.Filename = poolPathForPackage(componentConf.Name, pkg)
 
-				packagesForReleaseComponent[releaseComponent] = append(packagesForReleaseComponent[releaseComponent], *pkg)
+						if err := os.MkdirAll(filepath.Dir(filepath.Join(repoDir, pkg.Filename)), 0o755); err != nil {
+							return fmt.Errorf("failed to create pool subdirectory: %w", err)
+						}
+
+						if err := cp.Copy(pkgPath, filepath.Join(repoDir, pkg.Filename)); err != nil {
+							return fmt.Errorf("failed to copy package: %w", err)
+						}
+
+						pkgPoolPaths[pkgPath] = pkg.Filename
+					} else {
+						pkg.Filename = existingPoolPath
+					}
+
+					// Get the size of the package file.
+					fi, err := os.Stat(filepath.Join(repoDir, pkg.Filename))
+					if err != nil {
+						return fmt.Errorf("failed to get package size: %w", err)
+					}
+					pkg.Size = int(fi.Size())
+
+					packagesForReleaseComponent[releaseComponent] = append(packagesForReleaseComponent[releaseComponent], *pkg)
+				}
 			}
 		}
 	}

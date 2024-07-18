@@ -48,7 +48,8 @@ type ReleaseConfig struct {
 type ComponentConfig struct {
 	// Name is the name of the component.
 	Name string
-	// Packages is the list of file system paths to the deb packages within the component.
+	// Packages is the list of file system paths/glob patterns to deb files that
+	// will be included within the component.
 	Packages []string
 }
 
