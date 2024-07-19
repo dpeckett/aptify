@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/ProtonMail/go-crypto v1.0.0
 	github.com/adrg/xdg v0.4.0
-	github.com/dpeckett/archivefs v0.4.2
+	github.com/dpeckett/archivefs v0.4.3
 	github.com/dpeckett/compressmagic v0.3.2
 	github.com/dpeckett/deb822 v0.5.1
 	github.com/otiai10/copy v1.2.0

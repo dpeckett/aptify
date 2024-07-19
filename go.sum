@@ -14,8 +14,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dpeckett/archivefs v0.4.2 h1:YZVysiOJg6JMG9EwItG9QNH31xqNdF7LkAieMVVoteM=
-github.com/dpeckett/archivefs v0.4.2/go.mod h1://x8eLYUvknY/DoMAFzNZ3Xa4NrTrSIQp/YsWZeKN74=
+github.com/dpeckett/archivefs v0.4.3 h1:O2wfoexRuqkNSsSMD7VPMltS8Gock5Q4PTiYJba1V2c=
+github.com/dpeckett/archivefs v0.4.3/go.mod h1:V0vjJASIWYqF2LZ834AZDuRAfv8ajoh58t1xys8uhwg=
 github.com/dpeckett/compressmagic v0.3.2 h1:YqCV/AozHxXFpTbfPsptN0oo43tG273jJ6FpglEFYQ0=
 github.com/dpeckett/compressmagic v0.3.2/go.mod h1:hq8zqP5NhHpJQsinLpGzS7qNcfCTdTftrPfYRCPRW8I=
 github.com/dpeckett/deb822 v0.5.1 h1:PAiB12mFb8iryOO+Mkc0CqZLaN01s+6+65ksUG7451E=
