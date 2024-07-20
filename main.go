@@ -395,12 +395,14 @@ func buildRepository(repoDir, confPath, privateKeyPath string) error {
 
 	// Create release files.
 	for _, releaseConf := range conf.Releases {
+		var architectures []arch.Arch
+
 		for _, componentConf := range releaseConf.Components {
 			releaseComponent := fmt.Sprintf("%s/%s", releaseConf.Name, componentConf.Name)
 
-			for arch := range archsForReleaseComponent[releaseComponent] {
+			for architecture := range archsForReleaseComponent[releaseComponent] {
 				componentDir := filepath.Join(repoDir, "dists", releaseConf.Name, componentConf.Name)
-				archDir := filepath.Join(componentDir, "binary-"+arch)
+				archDir := filepath.Join(componentDir, "binary-"+architecture)
 
 				if err := os.MkdirAll(archDir, 0o755); err != nil {
 					return fmt.Errorf("failed to create dists subdirectory: %w", err)
@@ -411,7 +413,7 @@ func buildRepository(repoDir, confPath, privateKeyPath string) error {
 				// Filter out packages that don't match the architecture.
 				filteredPackages := make([]types.Package, 0, len(packages))
 				for _, pkg := range packages {
-					if pkg.Architecture.String() == arch {
+					if pkg.Architecture.String() == architecture {
 						filteredPackages = append(filteredPackages, pkg)
 					}
 				}
@@ -425,15 +427,12 @@ func buildRepository(repoDir, confPath, privateKeyPath string) error {
 					return fmt.Errorf("failed to write package lists: %w", err)
 				}
 
-				if err := writeContentsIndice(repoDir, componentDir, packages, arch); err != nil {
+				if err := writeContentsIndice(repoDir, componentDir, packages, architecture); err != nil {
 					return fmt.Errorf("failed to write contents file: %w", err)
 				}
-			}
-		}
 
-		var architectures []arch.Arch
-		for architecture := range archsForReleaseComponent[releaseConf.Name] {
-			architectures = append(architectures, arch.MustParse(architecture))
+				architectures = append(architectures, arch.MustParse(architecture))
+			}
 		}
 
 		releaseDir := filepath.Join(repoDir, "dists", releaseConf.Name)
