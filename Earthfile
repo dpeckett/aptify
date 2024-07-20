@@ -78,14 +78,13 @@ package:
   RUN echo "deb http://deb.debian.org/debian bookworm-backports main" > /etc/apt/sources.list.d/backports.list
   RUN apt update
   # Tooling
-  RUN apt install -y git curl devscripts dpkg-dev debhelper-compat dh-sequence-golang \
-    golang-any=2:1.22~3~bpo12+1 golang-go=2:1.22~3~bpo12+1 golang-src=2:1.22~3~bpo12+1
-  # Cross-compilation tooling.
-  RUN apt install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
-  # Libraries dependencies.
+  RUN apt install -y git curl devscripts dpkg-dev debhelper-compat git-buildpackage libfaketime dh-sequence-golang \
+    golang-any=2:1.22~3~bpo12+1 golang-go=2:1.22~3~bpo12+1 golang-src=2:1.22~3~bpo12+1 \
+    gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
   RUN curl -fsL -o /etc/apt/keyrings/apt-pecke-tt-keyring.asc https://apt.pecke.tt/signing_key.asc \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/apt-pecke-tt-keyring.asc] http://apt.pecke.tt $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/apt-pecke-tt.list \
     && apt update
+  # Build Dependencies
   RUN apt install -y \
     golang-github-adrg-xdg-dev \
     golang-github-dpeckett-archivefs-dev \
@@ -97,17 +96,17 @@ package:
     golang-github-urfave-cli-v2-dev \
     golang-golang-x-crypto-dev \
     golang-golang-x-sync-dev \
-    golang-golang-x-sys-dev=0.13.0-1~bpo12+1 \
+    golang-golang-x-sys-dev \
     golang-gopkg-yaml.v3-dev
   RUN mkdir -p /workspace/aptify
   WORKDIR /workspace/aptify
   COPY . .
-  ENV EMAIL=damian@pecke.tt
-  RUN export DEBEMAIL="damian@pecke.tt" \
-    && export DEBFULLNAME="Damian Peckett" \
-    && export VERSION=$(git describe --tags --abbrev=0 | tr -d 'v') \
-    && dch --create --package aptify --newversion "${VERSION}-1" \
-      --distribution "UNRELEASED" --force-distribution  --controlmaint "Last Commit: $(git log -1 --pretty=format:'(%ai) %H %cn <%ce>')" \
+  COPY debian/scripts/generate-changelog.sh /usr/local/bin/generate-changelog.sh
+  RUN chmod +x /usr/local/bin/generate-changelog.sh
+  ENV DEBEMAIL="damian@pecke.tt"
+  ENV DEBFULLNAME="Damian Peckett"
+  RUN /usr/local/bin/generate-changelog.sh
+  RUN VERSION=$(git describe --tags --abbrev=0 | tr -d 'v') \
     && tar -czf ../aptify_${VERSION}.orig.tar.gz .
   ARG GOARCH
   RUN dpkg-buildpackage -d -us -uc --host-arch=${GOARCH}
