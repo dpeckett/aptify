@@ -109,7 +109,7 @@ package:
   ENV DEBFULLNAME="Damian Peckett"
   RUN /usr/local/bin/generate-changelog.sh
   RUN VERSION=$(git describe --tags --abbrev=0 | tr -d 'v') \
-    && tar -czf ../aptify_${VERSION}.orig.tar.gz --exclude-vcs --exclude=debian .
+    && tar -czf ../aptify_${VERSION}.orig.tar.gz --exclude-vcs .
   ARG GOARCH
   RUN dpkg-buildpackage -d -us -uc --host-arch=${GOARCH}
   SAVE ARTIFACT /workspace/*.deb AS LOCAL dist/
