@@ -101,13 +101,15 @@ package:
   RUN mkdir -p /workspace/aptify
   WORKDIR /workspace/aptify
   COPY . .
+  RUN if [ -n "$(git status --porcelain)" ]; then echo "Please commit your changes."; exit 1; fi
+  RUN if [ -z "$(git describe --tags --exact-match 2>/dev/null)" ]; then echo "Current commit is not tagged."; exit 1; fi
   COPY debian/scripts/generate-changelog.sh /usr/local/bin/generate-changelog.sh
   RUN chmod +x /usr/local/bin/generate-changelog.sh
   ENV DEBEMAIL="damian@pecke.tt"
   ENV DEBFULLNAME="Damian Peckett"
   RUN /usr/local/bin/generate-changelog.sh
   RUN VERSION=$(git describe --tags --abbrev=0 | tr -d 'v') \
-    && tar -czf ../aptify_${VERSION}.orig.tar.gz .
+    && tar -czf ../aptify_${VERSION}.orig.tar.gz --exclude-vcs --exclude=debian .
   ARG GOARCH
   RUN dpkg-buildpackage -d -us -uc --host-arch=${GOARCH}
   SAVE ARTIFACT /workspace/*.deb AS LOCAL dist/
