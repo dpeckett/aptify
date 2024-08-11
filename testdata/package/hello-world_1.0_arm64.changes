@@ -16,13 +16,13 @@ Changes:
    * Initial release.
 Checksums-Sha1:
  220c9eab2d976e06b60036a4b0bb1c67ca6450dd 2324 hello-world-dbgsym_1.0_arm64.deb
- 732fa2e1ee776453b2e75d37bc90a38637d2d484 4366 hello-world_1.0_arm64.buildinfo
- 628f944f1774c44c6a17476d432f14118b75f5a9 7884 hello-world_1.0_arm64.deb
+ 1cb326a5f04c57ce4540aab9eb3f09f609025cc1 4366 hello-world_1.0_arm64.buildinfo
+ 8d8e200f27fa2648b4c5297bda044621697abac0 3200 hello-world_1.0_arm64.deb
 Checksums-Sha256:
  c8dc6cb757d986526ab2fdaa6ea791301600c4152b26cb41228fdd70fb9f87c9 2324 hello-world-dbgsym_1.0_arm64.deb
- b3fdda783367060a4d28c1e94a68d8bc95db847615ac3441c508ed7dae97eb00 4366 hello-world_1.0_arm64.buildinfo
- b0726d4578a10e87b47b405171a9fa496d8579f8c08980e703a0e8760a505a05 7884 hello-world_1.0_arm64.deb
+ a13940f3863b61216a32985370f50e0a0eea2f08e601a191367d9d7c98a315ad 4366 hello-world_1.0_arm64.buildinfo
+ 65d9283e3188fab8f90c2fb8346273362e40418e25d9257b101811ea435491b3 3200 hello-world_1.0_arm64.deb
 Files:
  5d9cd0bb3602796c5bc1ee3c8c1ab090 2324 debug optional hello-world-dbgsym_1.0_arm64.deb
- b6e3f0f6c56456c1995b0a401a7cc6a5 4366 utils optional hello-world_1.0_arm64.buildinfo
- 514fd8c8180699db20023a6f139f2884 7884 utils optional hello-world_1.0_arm64.deb
+ a67dd0ff8cb1843b968e7aa3cfdb6bc7 4366 utils optional hello-world_1.0_arm64.buildinfo
+ e91948b430fa12eab99e18c1c657bdb3 3200 utils optional hello-world_1.0_arm64.deb

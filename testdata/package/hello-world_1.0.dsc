@@ -8,8 +8,8 @@ Standards-Version: 4.5.0
 Package-List:
  hello-world deb utils optional arch=any
 Checksums-Sha1:
- 29d72c9be7a8de3190cdcfaaf94029c224b7967e 6076 hello-world_1.0.tar.xz
+ 6cb7f5e29f4cda58b333be76384a1edeb5df9c10 1400 hello-world_1.0.tar.xz
 Checksums-Sha256:
- 6840a55323116cdf91cb4da8e67927ed21210b704e4699289166ffc4499ba0ab 6076 hello-world_1.0.tar.xz
+ 13cad178b77c3ae5a6879c217ba130c36ba40aef963fd0fb5714751fc566e4c0 1400 hello-world_1.0.tar.xz
 Files:
- 5407aaf34478642b9c1fe46637ff9c52 6076 hello-world_1.0.tar.xz
+ bce7baf0b232431835faf98eae4d2144 1400 hello-world_1.0.tar.xz
