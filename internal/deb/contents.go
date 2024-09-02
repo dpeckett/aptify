@@ -27,7 +27,7 @@ import (
 
 	"github.com/dpeckett/archivefs/arfs"
 	"github.com/dpeckett/archivefs/tarfs"
-	"github.com/dpeckett/compressmagic"
+	"github.com/dpeckett/uncompr"
 )
 
 func GetPackageContents(path string) ([]string, error) {
@@ -68,7 +68,7 @@ func GetPackageContents(path string) ([]string, error) {
 		return nil, fmt.Errorf("failed to open data archive: %w", err)
 	}
 
-	dataArchiveReader, err := compressmagic.NewReader(dataArchiveFile)
+	dataArchiveReader, err := uncompr.NewReader(dataArchiveFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decompress data archive: %w", err)
 	}

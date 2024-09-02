@@ -45,12 +45,12 @@ import (
 	"github.com/dpeckett/aptify/internal/sha256sum"
 	"github.com/dpeckett/aptify/internal/util"
 	"github.com/dpeckett/aptify/internal/util/appcontext"
-	"github.com/dpeckett/compressmagic"
 	"github.com/dpeckett/deb822"
 	"github.com/dpeckett/deb822/types"
 	"github.com/dpeckett/deb822/types/arch"
 	"github.com/dpeckett/deb822/types/list"
 	"github.com/dpeckett/deb822/types/time"
+	"github.com/dpeckett/uncompr"
 	cp "github.com/otiai10/copy"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/acme"
@@ -493,7 +493,7 @@ func writePackagesIndice(archDir string, packages []types.Package) error {
 		}
 		defer f.Close()
 
-		w, err := compressmagic.NewWriter(f, f.Name())
+		w, err := uncompr.NewWriter(f, f.Name())
 		if err != nil {
 			return fmt.Errorf("failed to create compression writer: %w", err)
 		}
@@ -514,7 +514,7 @@ func writeContentsIndice(repoDir, componentDir string, packages []types.Package,
 	}
 	defer f.Close()
 
-	w, err := compressmagic.NewWriter(f, f.Name())
+	w, err := uncompr.NewWriter(f, f.Name())
 	if err != nil {
 		return fmt.Errorf("failed to create compression writer: %w", err)
 	}

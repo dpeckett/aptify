@@ -28,9 +28,9 @@ import (
 
 	"github.com/dpeckett/archivefs/arfs"
 	"github.com/dpeckett/archivefs/tarfs"
-	"github.com/dpeckett/compressmagic"
 	"github.com/dpeckett/deb822"
 	"github.com/dpeckett/deb822/types"
+	"github.com/dpeckett/uncompr"
 )
 
 func GetMetadata(path string) (*types.Package, error) {
@@ -71,7 +71,7 @@ func GetMetadata(path string) (*types.Package, error) {
 		return nil, fmt.Errorf("failed to open control archive: %w", err)
 	}
 
-	controlArchiveReader, err := compressmagic.NewReader(controlArchiveFile)
+	controlArchiveReader, err := uncompr.NewReader(controlArchiveFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decompress control archive: %w", err)
 	}
