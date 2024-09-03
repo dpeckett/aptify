@@ -85,8 +85,9 @@ package:
   RUN apt install -y \
     golang-github-adrg-xdg-dev \
     golang-github-dpeckett-archivefs-dev \
-    golang-github-dpeckett-uncompr-dev \
     golang-github-dpeckett-deb822-dev \
+    golang-github-dpeckett-telemetry-dev \
+    golang-github-dpeckett-uncompr-dev \
     golang-github-otiai10-copy-dev \
     golang-github-pierrec-lz4-dev=4.1.18-1~bpo12+1 \
     golang-github-protonmail-go-crypto-dev \

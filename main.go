@@ -29,6 +29,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -50,6 +51,8 @@ import (
 	"github.com/dpeckett/deb822/types/arch"
 	"github.com/dpeckett/deb822/types/list"
 	"github.com/dpeckett/deb822/types/time"
+	"github.com/dpeckett/telemetry"
+	telemetryv1alpha1 "github.com/dpeckett/telemetry/v1alpha1"
 	"github.com/dpeckett/uncompr"
 	cp "github.com/otiai10/copy"
 	"github.com/urfave/cli/v2"
@@ -95,6 +98,53 @@ func main() {
 		return nil
 	}
 
+	// Collect anonymized usage statistics.
+	var telemetryReporter *telemetry.Reporter
+
+	initTelemetry := func(c *cli.Context) error {
+		telemetryReporter = telemetry.NewReporter(c.Context, slog.Default(), telemetry.Configuration{
+			BaseURL: constants.TelemetryURL,
+			Tags:    []string{"aptify"},
+		})
+
+		// Some basic system information.
+		info := map[string]string{
+			"os":      runtime.GOOS,
+			"arch":    runtime.GOARCH,
+			"num_cpu": fmt.Sprintf("%d", runtime.NumCPU()),
+			"version": constants.Version,
+		}
+
+		telemetryReporter.ReportEvent(&telemetryv1alpha1.TelemetryEvent{
+			Kind:   telemetryv1alpha1.TelemetryEventKindInfo,
+			Name:   "ApplicationStart",
+			Values: info,
+		})
+
+		return nil
+	}
+
+	shutdownTelemetry := func(c *cli.Context) error {
+		if telemetryReporter == nil {
+			return nil
+		}
+
+		telemetryReporter.ReportEvent(&telemetryv1alpha1.TelemetryEvent{
+			Kind: telemetryv1alpha1.TelemetryEventKindInfo,
+			Name: "ApplicationStop",
+		})
+
+		// Don't want to block the shutdown of the application for too long.
+		ctx, cancel := context.WithTimeout(context.Background(), 3*stdtime.Second)
+		defer cancel()
+
+		if err := telemetryReporter.Shutdown(ctx); err != nil {
+			slog.Error("Failed to close telemetry reporter", slog.Any("error", err))
+		}
+
+		return nil
+	}
+
 	app := &cli.App{
 		Name:    "aptify",
 		Usage:   "Create apt repositories from Debian packages",
@@ -117,7 +167,8 @@ func main() {
 						Usage: "Email address of the key owner",
 					},
 				}, persistentFlags...),
-				Before: util.BeforeAll(initLogger, initConfDir),
+				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
+				After:  shutdownTelemetry,
 				Action: func(c *cli.Context) error {
 					entityConfig := &packet.Config{
 						RSABits: 4096,
@@ -174,7 +225,8 @@ func main() {
 						Value:   "repository",
 					},
 				}, persistentFlags...),
-				Before: util.BeforeAll(initLogger, initConfDir),
+				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
+				After:  shutdownTelemetry,
 				Action: func(c *cli.Context) error {
 					repoDir := c.String("repository-dir")
 
@@ -228,7 +280,8 @@ func main() {
 						Usage: "Email address for Let's Encrypt",
 					},
 				}, persistentFlags...),
-				Before: util.BeforeAll(initLogger, initConfDir),
+				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
+				After:  shutdownTelemetry,
 				Action: func(c *cli.Context) error {
 					repoDir := c.String("repository-dir")
 

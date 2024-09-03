@@ -19,5 +19,7 @@
 package constants
 
 var (
-	Version = "dev"
+	// TelemetryURL is the URL to send anonymized telemetry data to.
+	TelemetryURL = "https://telemetry.pecke.tt"
+	Version      = "dev"
 )

@@ -119,3 +119,10 @@ docker run -d --rm --name=aptify \
 
 Replace `<YOUR_DOMAIN>` and `<YOUR_EMAIL>` with the public domain where the 
 registry will be hosted and your email address respectively.
+
+## Telemetry
+
+By default aptify gathers anonymous crash and usage statistics. This anonymized
+data is processed on our servers within the EU and is not shared with third
+parties. You can opt out of telemetry by setting the `DO_NOT_TRACK=1`
+environment variable.
