@@ -115,6 +115,11 @@ func main() {
 			"version": constants.Version,
 		}
 
+		// Are we running in a container?
+		if os.Getenv("container") != "" {
+			info["container"] = os.Getenv("container")
+		}
+
 		telemetryReporter.ReportEvent(&telemetryv1alpha1.TelemetryEvent{
 			Kind:   telemetryv1alpha1.TelemetryEventKindInfo,
 			Name:   "ApplicationStart",

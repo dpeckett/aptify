@@ -57,6 +57,7 @@ test:
 
 docker:
   FROM ghcr.io/dpeckett/debco/debian:bookworm-ultraslim
+  ENV container=docker
   COPY LICENSE /usr/share/doc/aptify/copyright
   ARG TARGETARCH
   COPY (+build/aptify --GOOS=linux --GOARCH=${TARGETARCH}) /usr/bin/aptify
