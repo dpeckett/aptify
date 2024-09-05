@@ -6,7 +6,7 @@ After=network.target
 User=aptify
 Group=aptify
 WorkingDirectory=/var/lib/aptify
-ExecStart=/usr/local/bin/aptify serve
+ExecStart=/usr/bin/aptify serve
 Environment="REPOSITORY_DIR=/var/lib/aptify/repo"
 Restart=on-failure
 TimeoutStartSec=0

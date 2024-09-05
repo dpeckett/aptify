@@ -129,7 +129,7 @@ create a systemd service:
 sudo useradd -M -d /var/lib/aptify -s /bin/bash -U aptify
 sudo mkdir -p /var/lib/aptify
 sudo chown -R aptify:aptify /var/lib/aptify
-sudo install -m 644 aptify.service /etc/systemd/system/aptify.service
+sudo install -m 644 /usr/share/aptify/aptify.service /etc/systemd/system/aptify.service
 sudo systemctl daemon-reload
 sudo systemctl enable aptify
 sudo systemctl start aptify
