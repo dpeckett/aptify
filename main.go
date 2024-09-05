@@ -375,6 +375,8 @@ func main() {
 						}
 
 						if c.Bool("proxy-protocol") {
+							slog.Info("Enabling PROXY protocol for HTTPS connections")
+
 							httpsListener = &proxyproto.Listener{
 								Listener: httpsListener,
 							}

@@ -10,7 +10,7 @@ ExecStart=/usr/bin/aptify serve
 Environment="REPOSITORY_DIR=/var/lib/aptify/repo"
 Restart=on-failure
 TimeoutStartSec=0
-StartLimitIntervalSec=60
+StartLimitInterval=60s
 StartLimitBurst=3
 
 [Install]
