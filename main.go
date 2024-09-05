@@ -67,14 +67,16 @@ func main() {
 
 	persistentFlags := []cli.Flag{
 		&cli.GenericFlag{
-			Name:  "log-level",
-			Usage: "Set the log verbosity level",
-			Value: util.FromSlogLevel(slog.LevelInfo),
+			Name:    "log-level",
+			EnvVars: []string{"LOG_LEVEL"},
+			Usage:   "Set the log verbosity level",
+			Value:   util.FromSlogLevel(slog.LevelInfo),
 		},
 		&cli.StringFlag{
-			Name:  "config-dir",
-			Usage: "Directory to store configuration",
-			Value: defaultConfDir,
+			Name:    "config-dir",
+			EnvVars: []string{"CONFIG_DIR"},
+			Usage:   "Directory to store configuration",
+			Value:   defaultConfDir,
 		},
 	}
 
@@ -161,16 +163,19 @@ func main() {
 				Usage: "Generate a new GPG key pair for signing releases",
 				Flags: append([]cli.Flag{
 					&cli.StringFlag{
-						Name:  "name",
-						Usage: "Name of the key owner",
+						Name:    "name",
+						EnvVars: []string{"NAME"},
+						Usage:   "Name of the key owner",
 					},
 					&cli.StringFlag{
-						Name:  "comment",
-						Usage: "Comment to add to the key",
+						Name:    "comment",
+						EnvVars: []string{"COMMENT"},
+						Usage:   "Comment to add to the key",
 					},
 					&cli.StringFlag{
-						Name:  "email",
-						Usage: "Email address of the key owner",
+						Name:    "email",
+						EnvVars: []string{"EMAIL"},
+						Usage:   "Email address of the key owner",
 					},
 				}, persistentFlags...),
 				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
@@ -221,12 +226,14 @@ func main() {
 					&cli.StringFlag{
 						Name:     "config",
 						Aliases:  []string{"c"},
+						EnvVars:  []string{"CONFIG"},
 						Usage:    "Configuration file",
 						Required: true,
 					},
 					&cli.StringFlag{
 						Name:    "repository-dir",
 						Aliases: []string{"d"},
+						EnvVars: []string{"REPOSITORY_DIR"},
 						Usage:   "Directory to store the repository",
 						Value:   "repository",
 					},
@@ -254,24 +261,28 @@ func main() {
 					&cli.StringFlag{
 						Name:     "repository-dir",
 						Aliases:  []string{"d"},
+						EnvVars:  []string{"REPOSITORY_DIR"},
 						Usage:    "Directory containing the repository files",
 						Required: true,
 					},
 					&cli.StringFlag{
 						Name:    "listen",
 						Aliases: []string{"l"},
+						EnvVars: []string{"LISTEN"},
 						Usage:   "Address to listen on",
 						Value:   "localhost",
 					},
 					&cli.IntFlag{
-						Name:  "http-port",
-						Usage: "Port to listen on for HTTP",
-						Value: 8080,
+						Name:    "http-port",
+						EnvVars: []string{"HTTP_PORT"},
+						Usage:   "Port to listen on for HTTP",
+						Value:   8080,
 					},
 					&cli.IntFlag{
-						Name:  "https-port",
-						Usage: "Port to listen on for HTTPS (if enabled)",
-						Value: 8443,
+						Name:    "https-port",
+						EnvVars: []string{"HTTPS_PORT"},
+						Usage:   "Port to listen on for HTTPS (if enabled)",
+						Value:   8443,
 					},
 					&cli.BoolFlag{
 						Name:    "tls",
@@ -279,12 +290,14 @@ func main() {
 						Usage:   "Enable serving over HTTPS using Let's Encrypt",
 					},
 					&cli.StringFlag{
-						Name:  "domain",
-						Usage: "Public TLS domain for Let's Encrypt",
+						Name:    "domain",
+						EnvVars: []string{"DOMAIN"},
+						Usage:   "Public TLS domain for Let's Encrypt",
 					},
 					&cli.StringFlag{
-						Name:  "email",
-						Usage: "Email address for Let's Encrypt",
+						Name:    "email",
+						EnvVars: []string{"EMAIL"},
+						Usage:   "Email address for Let's Encrypt",
 					},
 					&cli.BoolFlag{
 						Name:    "proxy-protocol",

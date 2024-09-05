@@ -120,6 +120,24 @@ docker run -d --rm --name=aptify \
 Replace `<YOUR_DOMAIN>` and `<YOUR_EMAIL>` with the public domain where the 
 registry will be hosted and your email address respectively.
 
+### Systemd
+
+Install aptify from the APT repository and perform the following steps to
+create a systemd service:
+
+```shell
+sudo useradd -M -d /var/lib/aptify -s /bin/bash -U aptify
+sudo mkdir -p /var/lib/aptify
+sudo chown -R aptify:aptify /var/lib/aptify
+sudo install -m 644 aptify.service /etc/systemd/system/aptify.service
+sudo systemctl daemon-reload
+sudo systemctl enable aptify
+sudo systemctl start aptify
+```
+
+You can then add a repository to `/var/lib/aptify/repo' and it will be served
+on `http://localhost:8080`.
+
 ## Telemetry
 
 By default aptify gathers anonymous crash and usage statistics. This anonymized

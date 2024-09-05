@@ -1,0 +1,17 @@
+[Unit]
+Description=Aptify
+After=network.target
+
+[Service]
+User=aptify
+Group=aptify
+WorkingDirectory=/var/lib/aptify
+ExecStart=/usr/local/bin/aptify serve
+Environment="REPOSITORY_DIR=/var/lib/aptify/repo"
+Restart=on-failure
+TimeoutStartSec=0
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Install]
+WantedBy=multi-user.target
