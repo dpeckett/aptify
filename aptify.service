@@ -7,6 +7,7 @@ User=aptify
 Group=aptify
 WorkingDirectory=/var/lib/aptify
 ExecStart=/usr/bin/aptify serve
+Environment="CONFIG_DIR=/var/lib/aptify/config"
 Environment="REPOSITORY_DIR=/var/lib/aptify/repo"
 Restart=on-failure
 TimeoutStartSec=0

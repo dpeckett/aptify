@@ -163,19 +163,16 @@ func main() {
 				Usage: "Generate a new GPG key pair for signing releases",
 				Flags: append([]cli.Flag{
 					&cli.StringFlag{
-						Name:    "name",
-						EnvVars: []string{"NAME"},
-						Usage:   "Name of the key owner",
+						Name:  "name",
+						Usage: "Name of the key owner",
 					},
 					&cli.StringFlag{
-						Name:    "comment",
-						EnvVars: []string{"COMMENT"},
-						Usage:   "Comment to add to the key",
+						Name:  "comment",
+						Usage: "Comment to add to the key",
 					},
 					&cli.StringFlag{
-						Name:    "email",
-						EnvVars: []string{"EMAIL"},
-						Usage:   "Email address of the key owner",
+						Name:  "email",
+						Usage: "Email address of the key owner",
 					},
 				}, persistentFlags...),
 				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
@@ -226,14 +223,12 @@ func main() {
 					&cli.StringFlag{
 						Name:     "config",
 						Aliases:  []string{"c"},
-						EnvVars:  []string{"CONFIG"},
 						Usage:    "Configuration file",
 						Required: true,
 					},
 					&cli.StringFlag{
 						Name:    "repository-dir",
 						Aliases: []string{"d"},
-						EnvVars: []string{"REPOSITORY_DIR"},
 						Usage:   "Directory to store the repository",
 						Value:   "repository",
 					},
