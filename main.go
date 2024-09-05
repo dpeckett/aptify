@@ -55,6 +55,7 @@ import (
 	telemetryv1alpha1 "github.com/dpeckett/telemetry/v1alpha1"
 	"github.com/dpeckett/uncompr"
 	cp "github.com/otiai10/copy"
+	"github.com/pires/go-proxyproto"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
@@ -273,8 +274,9 @@ func main() {
 						Value: 8443,
 					},
 					&cli.BoolFlag{
-						Name:  "tls",
-						Usage: "Enable serving the repository over HTTPS using Let's Encrypt",
+						Name:    "tls",
+						EnvVars: []string{"ENABLE_TLS"},
+						Usage:   "Enable serving over HTTPS using Let's Encrypt",
 					},
 					&cli.StringFlag{
 						Name:  "domain",
@@ -283,6 +285,11 @@ func main() {
 					&cli.StringFlag{
 						Name:  "email",
 						Usage: "Email address for Let's Encrypt",
+					},
+					&cli.BoolFlag{
+						Name:    "proxy-protocol",
+						EnvVars: []string{"ENABLE_PROXY_PROTOCOL"},
+						Usage:   "Enable the HAProxy PROXY protocol for HTTPS connections",
 					},
 				}, persistentFlags...),
 				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
@@ -352,6 +359,12 @@ func main() {
 						httpsListener, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("https-port"))))
 						if err != nil {
 							return fmt.Errorf("failed to listen on https port: %w", err)
+						}
+
+						if c.Bool("proxy-protocol") {
+							httpsListener = &proxyproto.Listener{
+								Listener: httpsListener,
+							}
 						}
 
 						httpsSrv := &http.Server{

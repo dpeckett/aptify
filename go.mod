@@ -10,6 +10,7 @@ require (
 	github.com/dpeckett/telemetry v0.1.2
 	github.com/dpeckett/uncompr v0.5.0
 	github.com/otiai10/copy v1.2.0
+	github.com/pires/go-proxyproto v0.4.2
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.25.0
 	golang.org/x/sync v0.7.0
