@@ -46,8 +46,11 @@ test:
   COPY . .
   RUN go test -coverprofile=coverage.out -v ./...
   SAVE ARTIFACT ./coverage.out AS LOCAL coverage.out
-  # A quick integration test to ensure that we are producing valid repositories.
-  RUN go build .
+
+integration-test:
+  COPY +build/aptify ./aptify
+  COPY examples ./examples
+  COPY testdata ./testdata
   RUN ./aptify init-keys \
     && ./aptify build -c examples/demo.yaml -d /tmp/aptify \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/tmp/aptify/signing_key.asc] file:/tmp/aptify bookworm stable" > /etc/apt/sources.list.d/demo.list \
