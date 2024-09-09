@@ -24,14 +24,6 @@ Download statically linked binaries from the GitHub releases page:
 
 [Latest Release](https://github.com/dpeckett/aptify/releases/latest)
 
-### Docker
-
-Pull the latest Docker image from GitHub Container Registry:
-
-```shell
-docker pull ghcr.io/dpeckett/aptify:latest
-```
-
 ## Usage
 
 ### Initialize Keys
@@ -61,18 +53,34 @@ This will create a directory called `demo-repo` containing the repository.
 
 ### Serve Repository
 
-You can serve the repository using any web server you like. However for 
-convenience, aptify includes an embedded web server that you can use to serve 
-the repository.
+The recommended way to serve the repository is to use [caddy](https://caddyserver.com).
 
-To start a server listening on `http://localhost:8080`:
+An example Caddyfile is provided below, replace `apt.example.com` with your domain:
 
-```shell
-aptify serve -d ./demo-repo
 ```
+https://apt.example.com {
+  root * /var/lib/aptify/repo
+  file_server {
+    browse 
+  }
+}
 
-You can enable HTTPS support by passing the `--tls` flag and providing a 
-domain/email for Let's Encrypt certificate issuance.
+http://apt.example.com {
+  root * /var/lib/aptify/repo
+
+  # Don't serve the signing key over insecure connections.
+  handle_path "/signing_key.asc" {
+    redir https://{host}{uri}
+  }
+
+  handle {
+    root * /var/lib/aptify/repo
+    file_server {
+      browse
+    }
+  }
+}
+```
 
 ### Use Repository
 
@@ -80,11 +88,9 @@ To use the repository, you'll need to add a new apt source to your system. You
 can do this by downloading the signing key and adding the repository to your
 `/etc/apt/sources.list.d` directory.
 
-In a production setting the signing key should be downloaded over HTTPS.
-
 ```shell
-curl -fsL http://localhost:8080/signing_key.asc | sudo tee /etc/apt/keyrings/demo-repo-keyring.asc > /dev/null
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/demo-repo-keyring.asc] http://localhost:8080/ $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/demo-repo.list > /dev/null
+curl -fsL https://apt.example.com/signing_key.asc | sudo tee /etc/apt/keyrings/demo-repo-keyring.asc > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/demo-repo-keyring.asc] http://apt.example.com/ $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/demo-repo.list > /dev/null
 ```
 
 Packages can now be installed from the repository.
@@ -93,45 +99,6 @@ Packages can now be installed from the repository.
 sudo apt update
 sudo apt install hello-world
 ```
-
-### Docker
-
-You can also serve the repository using a Docker container.
-
-```shell
-# Create a config volume to store letsencrypt certificates.
-docker volume create aptify-config
-
-# Serve the repository.
-docker run -d --rm --name=aptify \
-  -p80:8080/tcp -p443:8443/tcp \
-  -v aptify-config:/home/nonroot/.config/aptify \
-  -v $(pwd)/demo-repo:/home/nonroot/demo-repo \
-  ghcr.io/dpeckett/aptify:latest serve \
-  --listen="" --tls --domain=<YOUR_DOMAIN> --email=<YOUR_EMAIL> \
-  -d /home/nonroot/demo-repo
-```
-
-Replace `<YOUR_DOMAIN>` and `<YOUR_EMAIL>` with the public domain where the 
-registry will be hosted and your email address respectively.
-
-### Systemd
-
-Install aptify from the APT repository and perform the following steps to
-create a systemd service:
-
-```shell
-sudo adduser --system --home /var/lib/aptify --no-create-home --group aptify
-sudo mkdir -p /var/lib/aptify
-sudo chown -R aptify:aptify /var/lib/aptify
-sudo install -m 644 /usr/share/aptify/aptify.service /etc/systemd/system/aptify.service
-sudo systemctl daemon-reload
-sudo systemctl enable aptify
-sudo systemctl start aptify
-```
-
-You can then add a repository to `/var/lib/aptify/repo' and it will be served
-on `http://localhost:8080`.
 
 ## Telemetry
 

@@ -21,17 +21,12 @@ package main
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
-	"errors"
 	"fmt"
 	"log/slog"
-	"net"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
-	"strconv"
 	"strings"
 	stdtime "time"
 
@@ -45,7 +40,6 @@ import (
 	"github.com/dpeckett/aptify/internal/deb"
 	"github.com/dpeckett/aptify/internal/sha256sum"
 	"github.com/dpeckett/aptify/internal/util"
-	"github.com/dpeckett/aptify/internal/util/appcontext"
 	"github.com/dpeckett/deb822"
 	"github.com/dpeckett/deb822/types"
 	"github.com/dpeckett/deb822/types/arch"
@@ -55,11 +49,7 @@ import (
 	telemetryv1alpha1 "github.com/dpeckett/telemetry/v1alpha1"
 	"github.com/dpeckett/uncompr"
 	cp "github.com/otiai10/copy"
-	"github.com/pires/go-proxyproto"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/crypto/acme"
-	"golang.org/x/crypto/acme/autocert"
-	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -116,11 +106,6 @@ func main() {
 			"arch":    runtime.GOARCH,
 			"num_cpu": fmt.Sprintf("%d", runtime.NumCPU()),
 			"version": constants.Version,
-		}
-
-		// Are we running in a container?
-		if os.Getenv("container") != "" {
-			info["container"] = os.Getenv("container")
 		}
 
 		telemetryReporter.ReportEvent(&telemetryv1alpha1.TelemetryEvent{
@@ -247,148 +232,6 @@ func main() {
 						c.String("config"),
 						privateKeyPath,
 					)
-				},
-			},
-			{
-				Name:  "serve",
-				Usage: "Serve a Debian repository over HTTP/s",
-				Flags: append([]cli.Flag{
-					&cli.StringFlag{
-						Name:     "repository-dir",
-						Aliases:  []string{"d"},
-						EnvVars:  []string{"REPOSITORY_DIR"},
-						Usage:    "Directory containing the repository files",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:    "listen",
-						Aliases: []string{"l"},
-						EnvVars: []string{"LISTEN"},
-						Usage:   "Address to listen on",
-						Value:   "localhost",
-					},
-					&cli.IntFlag{
-						Name:    "http-port",
-						EnvVars: []string{"HTTP_PORT"},
-						Usage:   "Port to listen on for HTTP",
-						Value:   8080,
-					},
-					&cli.IntFlag{
-						Name:    "https-port",
-						EnvVars: []string{"HTTPS_PORT"},
-						Usage:   "Port to listen on for HTTPS (if enabled)",
-						Value:   8443,
-					},
-					&cli.BoolFlag{
-						Name:    "tls",
-						EnvVars: []string{"ENABLE_TLS"},
-						Usage:   "Enable serving over HTTPS using Let's Encrypt",
-					},
-					&cli.StringFlag{
-						Name:    "domain",
-						EnvVars: []string{"DOMAIN"},
-						Usage:   "Public TLS domain for Let's Encrypt",
-					},
-					&cli.StringFlag{
-						Name:    "email",
-						EnvVars: []string{"EMAIL"},
-						Usage:   "Email address for Let's Encrypt",
-					},
-					&cli.BoolFlag{
-						Name:    "proxy-protocol",
-						EnvVars: []string{"ENABLE_PROXY_PROTOCOL"},
-						Usage:   "Enable the HAProxy PROXY protocol for HTTPS connections",
-					},
-				}, persistentFlags...),
-				Before: util.BeforeAll(initLogger, initConfDir, initTelemetry),
-				After:  shutdownTelemetry,
-				Action: func(c *cli.Context) error {
-					repoDir := c.String("repository-dir")
-
-					slog.Info("Serving repository", slog.String("dir", repoDir))
-
-					mux := http.NewServeMux()
-					mux.Handle("/", http.FileServer(http.Dir(repoDir)))
-
-					var httpHandler http.Handler = mux
-					var tlsConfig *tls.Config
-
-					if c.Bool("tls") {
-						if c.String("domain") == "" {
-							return errors.New("`domain` is required when using TLS")
-						}
-
-						if c.String("email") == "" {
-							return errors.New("`email` is required when using TLS")
-						}
-
-						autoTLSManager := autocert.Manager{
-							Prompt:     autocert.AcceptTOS,
-							Cache:      autocert.DirCache(filepath.Join(c.String("config-dir"), "autocert")),
-							HostPolicy: autocert.HostWhitelist(c.String("domain")),
-							Email:      c.String("email"),
-						}
-
-						tlsConfig = &tls.Config{
-							ServerName:     c.String("domain"),
-							GetCertificate: autoTLSManager.GetCertificate,
-							NextProtos:     []string{acme.ALPNProto},
-						}
-
-						httpHandler = autoTLSManager.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-							// If the request is for a signing key (eg. the asc file extension), redirect to HTTPS.
-							if strings.HasSuffix(r.URL.Path, ".asc") {
-								http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
-								return
-							}
-
-							// Otherwise, serve the request over HTTP.
-							mux.ServeHTTP(w, r)
-						}))
-					}
-
-					g, ctx := errgroup.WithContext(appcontext.Context())
-
-					httpListener, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("http-port"))))
-					if err != nil {
-						return fmt.Errorf("failed to listen on http port: %w", err)
-					}
-
-					httpSrv := &http.Server{
-						Handler:     util.LoggingMiddleware(httpHandler),
-						BaseContext: func(_ net.Listener) context.Context { return ctx },
-					}
-
-					g.Go(func() error {
-						return util.ServeWithContext(ctx, httpSrv, httpListener)
-					})
-
-					if c.Bool("tls") {
-						httpsListener, err := net.Listen("tcp", net.JoinHostPort(c.String("listen"), strconv.Itoa(c.Int("https-port"))))
-						if err != nil {
-							return fmt.Errorf("failed to listen on https port: %w", err)
-						}
-
-						if c.Bool("proxy-protocol") {
-							slog.Info("Enabling PROXY protocol for HTTPS connections")
-
-							httpsListener = &proxyproto.Listener{
-								Listener: httpsListener,
-							}
-						}
-
-						httpsSrv := &http.Server{
-							Handler:     util.LoggingMiddleware(mux),
-							BaseContext: func(_ net.Listener) context.Context { return ctx },
-							TLSConfig:   tlsConfig,
-						}
-
-						g.Go(func() error {
-							return util.ServeWithContext(ctx, httpsSrv, httpsListener)
-						})
-					}
-
-					return g.Wait()
 				},
 			},
 		},

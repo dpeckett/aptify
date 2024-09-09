@@ -95,12 +95,8 @@ package:
     golang-github-dpeckett-uncompr-dev \
     golang-github-otiai10-copy-dev \
     golang-github-pierrec-lz4-dev=4.1.18-1~bpo12+1 \
-    golang-github-pires-go-proxyproto-dev \
     golang-github-protonmail-go-crypto-dev \
     golang-github-urfave-cli-v2-dev \
-    golang-golang-x-crypto-dev \
-    golang-golang-x-sync-dev \
-    golang-golang-x-sys-dev \
     golang-gopkg-yaml.v3-dev
   RUN mkdir -p /workspace/aptify
   WORKDIR /workspace/aptify
